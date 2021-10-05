@@ -1,8 +1,12 @@
-from typing import List
-import os
 import json
+import os
 import subprocess
+from typing import List, Tuple
+from tqdm import tqdm
+from pathlib import Path
 
+
+import matplotlib.pyplot as plt
 
 config_template = {
     "num_vulnerabilities": 50,
@@ -30,19 +34,26 @@ def get_config_path(size: int) -> str:
 
 def write_configs(sizes: List[int]) -> None:
     for size in sizes:
-        placeholder = config_template
-        placeholder["num_events"] = size
-        with open(get_config_path(size=size), "w") as outfile:
-            json.dump(placeholder, outfile)
+        path = Path(get_data_path(size=size))
+        if not path.is_file():
+            placeholder = config_template
+            placeholder["num_events"] = size
+            with open(get_config_path(size=size), "w") as outfile:
+                json.dump(placeholder, outfile)
 
 
 def generate_data(size: int) -> None:
-    subprocess.call(f"sh ./generate_data.sh {size}", shell=True)
+    path = Path(get_data_path(size=size))
+    if not path.is_dir():
+        subprocess.call(f"sh ./generate_data.sh {size}", shell=True)
 
 
-def run_the_processes_for_c(size: int) -> None:
-    result = subprocess.Popen(f"sh ./run_c_model.sh {size}", shell=True, stdout=subprocess.PIPE)
-    print(f"\n\n\nhere is the output: {result.stdout.read()}")
+def run_the_processes_for_c(size: int) -> Tuple[float, float]:
+    result = subprocess.Popen(f"sh ./run_c_model.sh {size}", shell=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout, stderr = result.communicate()
+    time = float(stdout.decode('utf-8'))
+    return time
 
 
 def run_the_processes_for_python():
@@ -54,12 +65,22 @@ def plot_outcomes():
 
 
 if __name__ == "__main__":
-    config_sizes = [3, 4, 5, 6, 7]
+    config_sizes = [500, 600, 700]
 
     write_configs(sizes=config_sizes)
 
-    for i in config_sizes:
-        generate_data(size=i)
+    size_data = []
+    time_data = []
 
-    run_the_processes_for_c(size=7)
+    for i in tqdm(range(len(config_sizes))):
+        input_size = config_sizes[i]
+        print(f"preparing data for size {input_size}")
+        generate_data(size=input_size)
+        print(f"running model for size {input_size}")
+        time = run_the_processes_for_c(size=input_size)
+        print(f"model finished for size {input_size}")
+        size_data.append(input_size)
+        time_data.append(time)
 
+    plt.plot(size_data, time_data)
+    plt.show()
