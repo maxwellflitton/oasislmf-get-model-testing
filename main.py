@@ -48,7 +48,7 @@ def generate_data(size: int) -> None:
         subprocess.call(f"sh ./generate_data.sh {size}", shell=True)
 
 
-def run_the_processes_for_c(size: int) -> Tuple[float, float]:
+def run_the_processes_for_c(size: int) -> float:
     result = subprocess.Popen(f"sh ./run_c_model.sh {size}", shell=True,
                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout, stderr = result.communicate()
@@ -56,8 +56,12 @@ def run_the_processes_for_c(size: int) -> Tuple[float, float]:
     return time
 
 
-def run_the_processes_for_python():
-    pass
+def run_the_processes_for_python(size: int) -> float:
+    result = subprocess.Popen(f"sh ./run_python_model.sh {size}", shell=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout, stderr = result.communicate()
+    time = float(stdout.decode('utf-8'))
+    return time
 
 
 def plot_outcomes():
@@ -65,7 +69,7 @@ def plot_outcomes():
 
 
 if __name__ == "__main__":
-    config_sizes = [500, 600, 700]
+    config_sizes = [100, 500, 600, 700, 800, 900, 1000]
 
     write_configs(sizes=config_sizes)
 
@@ -76,11 +80,11 @@ if __name__ == "__main__":
         input_size = config_sizes[i]
         print(f"preparing data for size {input_size}")
         generate_data(size=input_size)
-        print(f"running model for size {input_size}")
-        time = run_the_processes_for_c(size=input_size)
-        print(f"model finished for size {input_size}")
-        size_data.append(input_size)
-        time_data.append(time)
-
-    plt.plot(size_data, time_data)
-    plt.show()
+    #     print(f"running model for size {input_size}")
+    #     time = run_the_processes_for_c(size=input_size)
+    #     print(f"model finished for size {input_size}")
+    #     size_data.append(input_size)
+    #     time_data.append(time)
+    #
+    # plt.plot(size_data, time_data)
+    # plt.show()

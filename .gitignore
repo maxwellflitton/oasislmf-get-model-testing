@@ -132,4 +132,10 @@ dmypy.json
 
 .DS_Store
 
-data.*
+# exclude everything
+data/*
+configs/*
+
+# exception to the rule
+!data/.gitkeep
+!configs/.gitkeep 

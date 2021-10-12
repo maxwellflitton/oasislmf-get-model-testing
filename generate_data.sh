@@ -20,4 +20,9 @@ cd $1
 mkdir input && cp events.bin ./input/events.bin
 mkdir static && cp footprint.bin ./static/footprint.bin && cp items.bin ./input/items.bin && cp vulnerability.bin ./static/vulnerability.bin && cp damage_bin_dict.bin ./static/damage_bin_dict.bin && cp footprint.idx ./static/footprint.idx
 
-
+evetocsv < ./input/events.bin > ./input/events.csv
+footprinttocsv < ./static/footprint.bin > ./static/footprint.csv
+footprinttocsv < ./input/footprint.bin > ./input/footprint.csv
+itemstocsv < ./input/items.bin > ./input/items.csv
+vulnerabilitytocsv < ./static/vulnerability.bin > ./static/vulnerability.csv
+damagebintocsv < ./static/damage_bin_dict.bin > ./static/damage_bin_dict.csv
